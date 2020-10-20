@@ -193,6 +193,7 @@ public final class Analyser {
         // 'begin'
         expect(TokenType.Begin);
 
+        //<主过程>
         analyseMain();
 
         // 'end'
@@ -200,10 +201,23 @@ public final class Analyser {
         expect(TokenType.EOF);
     }
 
+    /**
+     <主过程> ::= <常量声明><变量声明><语句序列>
+     */
     private void analyseMain() throws CompileError {
       //  throw new Error("Not implemented");
+        // <常量声明>
+        analyseConstantDeclaration();
+        // <变量声明>
+        analyseVariableDeclaration();
+        // <语句序列>
+        analyseStatementSequence();
     }
 
+    /**
+      <常量声明> ::= {<常量声明语句>}
+      <常量声明语句> ::= 'const'<标识符>'='<常表达式>';'
+     */
     private void analyseConstantDeclaration() throws CompileError {
         // 示例函数，示例如何解析常量声明
         // 如果下一个 token 是 const 就继续
@@ -222,30 +236,95 @@ public final class Analyser {
         }
     }
 
+    /**
+     <变量声明> ::= {<变量声明语句>}
+     <变量声明语句> ::= 'var'<标识符>['='<表达式>]';'
+     */
     private void analyseVariableDeclaration() throws CompileError {
        // throw new Error("Not implemented");
+        // 如果下一个 token 是 var 就继续
+        while (nextIf(TokenType.Var) != null) {
+            // 变量名
+            var nameToken = expect(TokenType.Ident);
+
+            // 等于号、表达式
+            if (nextIf(TokenType.Equal) != null) {
+                analyseExpression();
+            }
+
+            // 分号
+            expect(TokenType.Semicolon);
+        }
     }
 
+    /**
+     <语句序列> ::= {<语句>}
+     */
     private void analyseStatementSequence() throws CompileError {
       //  throw new Error("Not implemented");
+        //<赋值语句>、<输出语句>、<空语句>
+        while (check(TokenType.Ident)||check(TokenType.Print)||check(TokenType.Semicolon)){
+            // 调用相应的处理函数
+            analyseStatement();
+        }
     }
 
+    /**
+     <语句> ::= <赋值语句>|<输出语句>|<空语句>
+     */
     private void analyseStatement() throws CompileError {
       //  throw new Error("Not implemented");
+        if(check(TokenType.Ident)){
+            analyseAssignmentStatement();
+        }else if(check(TokenType.Print)){
+            analyseOutputStatement();
+        }else if(check(TokenType.Semicolon)){
+            expect(TokenType.Semicolon);
+        }else{
+            throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Print, TokenType.Semicolon), next());
+        }
     }
 
+    /**
+     <常表达式> ::= [<符号>]<无符号整数>
+     */
     private void analyseConstantExpression() throws CompileError {
      //   throw new Error("Not implemented");
+        if (check(TokenType.Minus)) {
+            expect(TokenType.Minus);
+        } else if (check(TokenType.Plus)){
+            expect(TokenType.Plus);
+        }
+        expect(TokenType.Uint);
+
     }
 
+    /**
+     <表达式> ::= <项>{<加法型运算符><项>}
+     */
     private void analyseExpression() throws CompileError {
      //   throw new Error("Not implemented");
+        analyseItem();
+        while(check(TokenType.Plus)){
+            expect(TokenType.Plus);
+            analyseItem();
+        }
     }
 
+    /**
+    <赋值语句> ::= <标识符>'='<表达式>';'
+    */
     private void analyseAssignmentStatement() throws CompileError {
      //   throw new Error("Not implemented");
+        expect(TokenType.Ident);
+        expect(TokenType.Equal);
+        analyseExpression();
+        expect(TokenType.Semicolon);
     }
 
+    /**
+     <输出语句> ::= 'print' '(' <表达式> ')' ';'
+     */
     private void analyseOutputStatement() throws CompileError {
         expect(TokenType.Print);
         expect(TokenType.LParen);
@@ -255,10 +334,21 @@ public final class Analyser {
         instructions.add(new Instruction(Operation.WRT));
     }
 
+    /**
+     <项> ::= <因子>{<乘法型运算符><因子>}
+     */
     private void analyseItem() throws CompileError {
      //   throw new Error("Not implemented");
+        analyseFactor();
+        while(check(TokenType.Mult)){
+            expect(TokenType.Mult);
+            analyseFactor();
+        }
     }
 
+    /**
+     <因子> ::= [<符号>]( <标识符> | <无符号整数> | '('<表达式>')' )
+     */
     private void analyseFactor() throws CompileError {
         boolean negate;
         if (nextIf(TokenType.Minus) != null) {
@@ -272,10 +362,15 @@ public final class Analyser {
 
         if (check(TokenType.Ident)) {
             // 调用相应的处理函数
+            expect(TokenType.Ident);
         } else if (check(TokenType.Uint)) {
             // 调用相应的处理函数
+            expect(TokenType.Uint);
         } else if (check(TokenType.LParen)) {
             // 调用相应的处理函数
+            expect(TokenType.LParen);
+            analyseExpression();
+            expect(TokenType.RParen);
         } else {
             // 都不是，摸了
             throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
