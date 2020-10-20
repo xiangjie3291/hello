@@ -1,10 +1,6 @@
 package miniplc0java.analyser;
 
-import miniplc0java.error.AnalyzeError;
-import miniplc0java.error.CompileError;
-import miniplc0java.error.ErrorCode;
-import miniplc0java.error.ExpectedTokenError;
-import miniplc0java.error.TokenizeError;
+import miniplc0java.error.*;
 import miniplc0java.instruction.Instruction;
 import miniplc0java.instruction.Operation;
 import miniplc0java.tokenizer.Token;
@@ -12,7 +8,9 @@ import miniplc0java.tokenizer.TokenType;
 import miniplc0java.tokenizer.Tokenizer;
 import miniplc0java.util.Pos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public final class Analyser {
 
@@ -203,7 +201,7 @@ public final class Analyser {
     }
 
     private void analyseMain() throws CompileError {
-        throw new Error("Not implemented");
+      //  throw new Error("Not implemented");
     }
 
     private void analyseConstantDeclaration() throws CompileError {
@@ -225,27 +223,27 @@ public final class Analyser {
     }
 
     private void analyseVariableDeclaration() throws CompileError {
-        throw new Error("Not implemented");
+       // throw new Error("Not implemented");
     }
 
     private void analyseStatementSequence() throws CompileError {
-        throw new Error("Not implemented");
+      //  throw new Error("Not implemented");
     }
 
     private void analyseStatement() throws CompileError {
-        throw new Error("Not implemented");
+      //  throw new Error("Not implemented");
     }
 
     private void analyseConstantExpression() throws CompileError {
-        throw new Error("Not implemented");
+     //   throw new Error("Not implemented");
     }
 
     private void analyseExpression() throws CompileError {
-        throw new Error("Not implemented");
+     //   throw new Error("Not implemented");
     }
 
     private void analyseAssignmentStatement() throws CompileError {
-        throw new Error("Not implemented");
+     //   throw new Error("Not implemented");
     }
 
     private void analyseOutputStatement() throws CompileError {
@@ -258,7 +256,7 @@ public final class Analyser {
     }
 
     private void analyseItem() throws CompileError {
-        throw new Error("Not implemented");
+     //   throw new Error("Not implemented");
     }
 
     private void analyseFactor() throws CompileError {
@@ -286,6 +284,6 @@ public final class Analyser {
         if (negate) {
             instructions.add(new Instruction(Operation.SUB));
         }
-        throw new Error("Not implemented");
+      //  throw new Error("Not implemented");
     }
 }
