@@ -290,13 +290,20 @@ public final class Analyser {
      */
     private void analyseConstantExpression() throws CompileError {
      //   throw new Error("Not implemented");
-        if (check(TokenType.Minus)) {
-            expect(TokenType.Minus);
-        } else if (check(TokenType.Plus)){
-            expect(TokenType.Plus);
+        boolean negate;
+        if (nextIf(TokenType.Minus) != null) {
+            negate = true;
+            // 计算结果需要被 0 减
+            instructions.add(new Instruction(Operation.LIT, 0));
+        } else {
+            nextIf(TokenType.Plus);
+            negate = false;
         }
         expect(TokenType.Uint);
 
+        if (negate) {
+            instructions.add(new Instruction(Operation.SUB));
+        }
     }
 
     /**
@@ -305,9 +312,16 @@ public final class Analyser {
     private void analyseExpression() throws CompileError {
      //   throw new Error("Not implemented");
         analyseItem();
-        while(check(TokenType.Plus)){
-            expect(TokenType.Plus);
+        while(check(TokenType.Plus)||check(TokenType.Minus)){
+            TokenType type=next().getTokenType();
             analyseItem();
+            if(type==TokenType.Plus){
+                instructions.add(new Instruction(Operation.ADD,0));
+
+            }else if(type==TokenType.Minus){
+                instructions.add(new Instruction(Operation.SUB,0));
+
+            }
         }
     }
 
@@ -340,9 +354,14 @@ public final class Analyser {
     private void analyseItem() throws CompileError {
      //   throw new Error("Not implemented");
         analyseFactor();
-        while(check(TokenType.Mult)){
-            expect(TokenType.Mult);
+        while(check(TokenType.Mult)||check(TokenType.Div)){
+            TokenType type=next().getTokenType();
             analyseFactor();
+            if(type==TokenType.Mult){
+                instructions.add(new Instruction(Operation.MUL));
+            }else if(type==TokenType.Div){
+                instructions.add(new Instruction(Operation.DIV));
+            }
         }
     }
 
