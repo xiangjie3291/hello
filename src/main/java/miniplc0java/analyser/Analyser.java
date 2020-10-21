@@ -282,7 +282,6 @@ public final class Analyser {
                 addSymbol(nameToken.getValue().toString(),true,false, nameToken.getStartPos());
             }else{
                 addSymbol(nameToken.getValue().toString(),false,false, nameToken.getStartPos());
-
             }
         }
     }
@@ -365,7 +364,7 @@ public final class Analyser {
          不能使用没有声明过的标识符
          不能给常量赋值：被声明为常量的标识符，不能出现在赋值语句的左侧
         */
-        if(symbolTable.containsKey(token.getValue().toString())){
+        if(!symbolTable.containsKey(token.getValue().toString())){
             throw new AnalyzeError(ErrorCode.NotDeclared, token.getStartPos());
         }else if(isConstant(token.getValue().toString(), token.getStartPos())){
             throw new AnalyzeError(ErrorCode.AssignToConstant, token.getStartPos());
@@ -444,7 +443,7 @@ public final class Analyser {
         } else if (check(TokenType.Uint)) {
             // 调用相应的处理函数
            Token token=expect(TokenType.Uint);
-           //将该无符号整数的值存入栈顶
+            //将该无符号整数的值存入栈顶
             instructions.add(new Instruction(Operation.LIT, Integer.parseInt(token.getValue().toString())));
         } else if (check(TokenType.LParen)) {
             // 调用相应的处理函数
