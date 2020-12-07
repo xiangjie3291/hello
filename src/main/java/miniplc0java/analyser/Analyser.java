@@ -67,8 +67,14 @@ public class Analyser {
     /** 算符优先矩阵 */
     int[][] priority = OperatorPrecedence.getPriority();
 
+    /** while函数判断 */
+    boolean isWhile = false;
 
+    /** while起始地址（continue） */
+    int startOfWhile = 0;
 
+    /** while结束地址（break） */
+    int endOfWhile = 0;
 
     /**
      *  用于存储函数的局部变量大小
@@ -252,7 +258,11 @@ public class Analyser {
                         int next = OperatorPrecedence.getOrder(tmp.getTokenType());
                         if (priority[front][next] > 0) {
                             TokenType type = stack.pop();
-                            Instruction.AddToInstructionListInt(type, InstructionList);
+                            if(Type1.equals("int")) {
+                                Instruction.AddToInstructionListInt(type, InstructionList);
+                            }else if (Type1.equals("double")){
+                                Instruction.AddToInstructionListDouble(type, InstructionList);
+                            }
                         }
                     }
                     stack.push(tmp.getTokenType());
@@ -261,9 +271,7 @@ public class Analyser {
                         throw new AnalyzeError(ErrorCode.TypeError, tmp.getStartPos());
                     }
                 }
-                /* as_expr
-                 *  todo: 没写，摸了
-                 *  */
+                /* as_expr */
                 else {
                     Token tmp=peek();
                     /* 不为int或double类型 */
@@ -315,10 +323,13 @@ public class Analyser {
         Token tmp = peek();
         /* 根据表达式分析后得到的表达式类型判断 */
         Type1 =  analyseExpression();
-        if(Type1.equalsIgnoreCase("int")||Type1.equalsIgnoreCase("double")){
+        if(Type1.equalsIgnoreCase("int")){
             /* 满足需求,添加指令 */
             InstructionList.add(new Instruction(Operation.neg));
-        }else {
+        }else if(Type1.equalsIgnoreCase("double")){
+            InstructionList.add(new Instruction(Operation.negf));
+        }
+        else {
             throw new AnalyzeError(ErrorCode.TypeError, tmp.getStartPos());
 
         }
@@ -403,7 +414,12 @@ public class Analyser {
             }
 
             while (!stack.empty()) {
-                Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+                if(type.equals("int")) {
+                    Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+                }else if (type.equals("double")){
+                    Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+                }
+
             }
 
             InstructionList.add(new Instruction(Operation.store));
@@ -516,7 +532,11 @@ public class Analyser {
         String Type = analyseExpression();
         TypeList.add(Type);
         while (!stack.empty() && stack.peek() != TokenType.L_Paren) {
-            Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+            if(Type.equals("int")) {
+                Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+            }else if (Type.equals("double")){
+                Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+            }
         }
         count++;
 
@@ -524,7 +544,11 @@ public class Analyser {
             Type = analyseExpression();
             TypeList.add(Type);
             while (!stack.empty() && stack.peek() != TokenType.L_Paren) {
-                Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+                if(Type.equals("int")) {
+                    Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+                }else if (Type.equals("double")){
+                    Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+                }
             }
             count++;
         }
@@ -558,7 +582,11 @@ public class Analyser {
 
         while (stack.peek() != TokenType.L_Paren) {
             TokenType type = stack.pop();
-            Instruction.AddToInstructionListInt(type, InstructionList);
+            if(Type.equals("int")) {
+                Instruction.AddToInstructionListInt(type, InstructionList);
+            }else if (Type.equals("double")){
+                Instruction.AddToInstructionListDouble(type, InstructionList);
+            }
         }
         return Type;
     }
@@ -579,11 +607,14 @@ public class Analyser {
         Token var = peek();
         if(check(TokenType.MINUS)||check(TokenType.IDENT)||check(TokenType.L_Paren)||isLiteralExpr()){
 
-            analyseExpression();
+           String Type1 = analyseExpression();
             //将栈中剩余的操作符弹出
             while (!stack.empty()) {
-                TokenType tokenType = stack.pop();
-                Instruction.AddToInstructionListInt(tokenType, InstructionList);
+                if(Type1.equals("int")) {
+                    Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+                }else if (Type1.equals("double")){
+                    Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+                }
             }
 
             expect(TokenType.SEMICOLON);
@@ -657,8 +688,11 @@ public class Analyser {
                     throw new AnalyzeError(ErrorCode.InvalidAssignment, tmp.getStartPos());
                 }
                 while (!stack.empty()) {
-                    TokenType tokenType = stack.pop();
-                    Instruction.AddToInstructionListInt(tokenType, InstructionList);
+                    if(Type.equals("int")) {
+                        Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+                    }else {
+                        Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+                    }
                 }
 
                 if(level==0) {
@@ -705,8 +739,11 @@ public class Analyser {
             }
 
             while (!stack.empty()) {
-                TokenType tokenType = stack.pop();
-                Instruction.AddToInstructionListInt(tokenType, InstructionList);
+                if(Type.equals("int")) {
+                    Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+                }else if (Type.equals("double")){
+                    Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+                }
             }
 
             InstructionList.add(new Instruction(Operation.store));
@@ -729,11 +766,14 @@ public class Analyser {
      * */
     private void analyseIfStmt(String Type) throws CompileError{
         expect(TokenType.IF_KW);
-        analyseExpression();
+        String Type1 = analyseExpression();
         //弹栈
         while (!stack.empty()) {
-            TokenType tokenType = stack.pop();
-            Instruction.AddToInstructionListInt(tokenType, InstructionList);
+            if(Type1.equals("int")) {
+                Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+            }else if (Type1.equals("double")){
+                Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+            }
         }
 
         //满足，跳过br进行语句块中的指令
@@ -781,11 +821,14 @@ public class Analyser {
         /* 语句进行前的指令集长度 */
         int size_first = InstructionList.size();
 
-        analyseExpression();
+        String Type1 = analyseExpression();
 
         while (!stack.empty()) {
-            TokenType tokenType = stack.pop();
-            Instruction.AddToInstructionListInt(tokenType, InstructionList);
+            if(Type1.equals("int")) {
+                Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+            }else if (Type1.equals("double")){
+                Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+            }
         }
 
 
@@ -798,6 +841,15 @@ public class Analyser {
         /* while开始执行时的指令集长度 */
         int size_second = InstructionList.size();
 
+
+        /**
+         * while开始
+         * */
+        isWhile = true;
+        startOfWhile = size_first;
+
+
+
         /* 分析block_stmt */
         analyseBlockStmt(Type);
 
@@ -806,6 +858,13 @@ public class Analyser {
         InstructionList.add(comeBack);
         /* 语句进行后的指令集长度 */
         int size_third = InstructionList.size();
+
+        /**
+         * while结束
+         * */
+        isWhile = false;
+        endOfWhile = size_third;
+
 
         /* 回到最开始、跳过while的偏移 */
         int back = size_first - size_third;
@@ -848,7 +907,12 @@ public class Analyser {
                     throw new AnalyzeError(ErrorCode.NotValidReturn, var.getStartPos());
                 }
                 while (!stack.empty()) {
-                    Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+                    Type = returnType;
+                    if(Type.equals("int")) {
+                        Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+                    }else if (Type.equals("double")){
+                        Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+                    }
                 }
                 InstructionList.add(new Instruction(Operation.store));
                 haveReturn = true ;

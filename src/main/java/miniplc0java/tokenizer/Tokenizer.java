@@ -59,10 +59,8 @@ public class Tokenizer {
             it.nextChar();
             if(it.peekChar()=='\''){
                 it.nextChar();
-                System.out.println("token:"+tmp);
-                return new Token(TokenType.CHAR_LITERAL,(int)tmp, startPos, it.nextPos());
+                return new Token(TokenType.CHAR_LITERAL,(long)tmp, startPos, it.nextPos());
             }else{
-                System.out.println("---"+it.peekChar()+"-----");
                 throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
             }
         }else if(tmp == '\\'){
@@ -76,13 +74,13 @@ public class Tokenizer {
                 if(it.peekChar()=='\''){
                     it.nextChar();
                     if(tmp=='\\'||tmp=='\'') {
-                        return new Token(TokenType.CHAR_LITERAL, (int) tmp, startPos, it.nextPos());
+                        return new Token(TokenType.CHAR_LITERAL, (long) tmp, startPos, it.nextPos());
                     }else if(tmp== 'n'){
-                        return new Token(TokenType.CHAR_LITERAL, (int) '\n', startPos, it.nextPos());
+                        return new Token(TokenType.CHAR_LITERAL, (long) '\n', startPos, it.nextPos());
                     }else if(tmp== 'r'){
-                        return new Token(TokenType.CHAR_LITERAL, (int) '\r', startPos, it.nextPos());
+                        return new Token(TokenType.CHAR_LITERAL, (long) '\r', startPos, it.nextPos());
                     }else {
-                        return new Token(TokenType.CHAR_LITERAL, (int) '\t', startPos, it.nextPos());
+                        return new Token(TokenType.CHAR_LITERAL, (long) '\t', startPos, it.nextPos());
                     }
                 }else{
                     throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
