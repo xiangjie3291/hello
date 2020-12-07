@@ -1,4 +1,3 @@
 fn main() -> void {
-     putstr("a");
-     putln();
- }
+    putstr("// this is not a comment");
+}
