@@ -222,12 +222,12 @@ public class Analyser {
                 Type1 = "int";
                 //returnType = "int";
             }else if(tmp.getTokenType()==TokenType.DOUBLE_LITERAL){
-                /* todo: double类型，未实现 */
                 if(level==0){
                     GlobalInstructionList.add(new Instruction(Operation.push, (long) tmp.getValue(), 8));
                 }else {
                     InstructionList.add(new Instruction(Operation.push, (long) tmp.getValue(), 8));
                 }
+                Type1 = "double";
             }else if (tmp.getTokenType() == TokenType.STRING_LITERAL) {
                 GlobalTable.add(new GlobalDef(tmp.getValueString(), 1, AuxiliaryFunction.ChangeToBinary(tmp.getValueString())));
                 if(level==0) {
@@ -265,8 +265,36 @@ public class Analyser {
                  *  todo: 没写，摸了
                  *  */
                 else {
+                    Token tmp=peek();
+                    /* 不为int或double类型 */
+                    if(!Type1.equals("int")&&!Type1.equals("double")){
+                        throw new AnalyzeError(ErrorCode.TypeError, tmp.getStartPos());
+                    }
                     expect(TokenType.AS_KW);
-                    analyseTy();
+                    String Type2 = analyseTy();
+                    /* 两者类型不等时才需要转换 */
+                    if(!Type1.equals(Type2)){
+                        /* int转double */
+                        if(Type1.equals("int")){
+                            if(level == 0){
+                                GlobalInstructionList.add(new Instruction(Operation.itof));
+                            }else{
+                                InstructionList.add(new Instruction(Operation.itof));
+                            }
+                            Type1 = "double";
+                        }
+                        /* double转int */
+                        else{
+                            if(level == 0){
+                                GlobalInstructionList.add(new Instruction(Operation.ftoi));
+                            }else{
+                                InstructionList.add(new Instruction(Operation.ftoi));
+                            }
+                            Type1 = "int";
+                        }
+                    }
+
+
                 }
             }
 //        /* 都不是，报错 */
