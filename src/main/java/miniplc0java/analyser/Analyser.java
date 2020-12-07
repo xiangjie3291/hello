@@ -212,7 +212,7 @@ public class Analyser {
             /* 继续执行 */
             /* 识别字面量 */
             Token tmp = next();
-            if(tmp.getTokenType()==TokenType.UINT_LITERAL){
+            if(tmp.getTokenType()==TokenType.UINT_LITERAL||tmp.getTokenType()==TokenType.CHAR_LITERAL){
                 /* int类型，四字节 */
                 if(level==0){
                     GlobalInstructionList.add(new Instruction(Operation.push , (Integer) tmp.getValue(), 8));

@@ -36,6 +36,8 @@ public class Tokenizer {
             return lexIdentOrKeyword();
         } else if(peek == '"'){
             return lexStringLiteral();
+        } else if(peek == '\''){
+            return lexCharLiteral();
         }
         else {
 //            if(peek == '/'){
@@ -45,7 +47,56 @@ public class Tokenizer {
         }
     }
 
+    /* 识别字符字面量 */
+    private Token lexCharLiteral() throws TokenizeError{
+      //  StringBuilder CatToken = new StringBuilder();
+        Pos startPos = it.nextPos();
+        Pos endPos;
+        it.nextChar();
+        char tmp = it.peekChar();//下一个指向0，当前指向'(开始)
+        if(tmp != '\\' && tmp != '\''  && tmp != '\n' && tmp != '\r' && tmp != '\t'){
+           // CatToken.append(tmp);
+            it.nextChar();
+            if(it.peekChar()=='\''){
+                it.nextChar();
+                System.out.println("token:"+tmp);
+                return new Token(TokenType.CHAR_LITERAL,(int)tmp, startPos, it.nextPos());
+            }else{
+                System.out.println("---"+it.peekChar()+"-----");
+                throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
+            }
+        }else if(tmp == '\\'){
+           // CatToken.append(tmp); //读取一个'\'
+            it.nextChar();
+            tmp = it.peekChar();
+            //读取斜线后的另一部分构成转义字符
+            if(tmp == '\\' || tmp == '\''  || tmp == 'n' || tmp == 'r' || tmp == 't'){
+                //CatToken.append(tmp);
+                it.nextChar();
+                if(it.peekChar()=='\''){
+                    it.nextChar();
+                    if(tmp=='\\'||tmp=='\'') {
+                        return new Token(TokenType.CHAR_LITERAL, (int) tmp, startPos, it.nextPos());
+                    }else if(tmp== 'n'){
+                        return new Token(TokenType.CHAR_LITERAL, (int) '\n', startPos, it.nextPos());
+                    }else if(tmp== 'r'){
+                        return new Token(TokenType.CHAR_LITERAL, (int) '\r', startPos, it.nextPos());
+                    }else {
+                        return new Token(TokenType.CHAR_LITERAL, (int) '\t', startPos, it.nextPos());
+                    }
+                }else{
+                    throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
+                }
+            }
+            //没读到另一部分
+            else{
+                throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
+            }
+        }else {
+            throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
+        }
 
+    }
 
     /* 无符号整数(或浮点数形式) */
     private Token lexUInt() throws TokenizeError {
@@ -302,18 +353,18 @@ public class Tokenizer {
         }
     }
 
-    /* 注释 */
-    private Token lexComment() throws TokenizeError{
-        it.nextChar();
-        if(it.peekChar()=='/'){
-            while(it.peekChar()!='\n'){
-                it.nextChar();
-            }
-            return nextToken();
-        }else{
-            throw new TokenizeError(ErrorCode.InvalidInput, it.nextPos());
-        }
-    }
+//    /* 注释 */
+//    private Token lexComment() throws TokenizeError{
+//        it.nextChar();
+//        if(it.peekChar()=='/'){
+//            while(it.peekChar()!='\n'){
+//                it.nextChar();
+//            }
+//            return nextToken();
+//        }else{
+//            throw new TokenizeError(ErrorCode.InvalidInput, it.nextPos());
+//        }
+//    }
 
     private void skipSpaceCharacters() {
         while (!it.isEOF() && Character.isWhitespace(it.peekChar())) {
