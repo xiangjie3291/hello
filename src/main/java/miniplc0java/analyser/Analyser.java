@@ -325,10 +325,17 @@ public class Analyser {
         Type1 =  analyseExpression();
         if(Type1.equalsIgnoreCase("int")){
             /* 满足需求,添加指令 */
-            InstructionList.add(new Instruction(Operation.neg));
+            if(level==0){
+                GlobalInstructionList.add(new Instruction(Operation.neg));
+            }else {
+                InstructionList.add(new Instruction(Operation.neg));
+            }
         }else if(Type1.equalsIgnoreCase("double")){
-            InstructionList.add(new Instruction(Operation.negf));
-        }
+            if(level==0){
+                GlobalInstructionList.add(new Instruction(Operation.negf));
+            }else {
+                InstructionList.add(new Instruction(Operation.negf));
+            }        }
         else {
             throw new AnalyzeError(ErrorCode.TypeError, tmp.getStartPos());
 
