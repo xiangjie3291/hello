@@ -324,8 +324,8 @@ public class Analyser {
                 throw new AnalyzeError(ErrorCode.NotDeclared, tmp.getStartPos());
             }
             else {
-                //为符号
-                if(symbol!=null) {
+                //为符号(首先查找局部变量)
+                if(symbol!=null&&symbol.getLevel()>0) {
                     type = symbol.getType();
                     /* 该变量类型与表达式类型不同,或l_expr的类型为void */
                     if (type.equals("void")) {
@@ -337,25 +337,31 @@ public class Analyser {
                     }
                     /* 都不是 */
                     else {
-                        /* 判断该变量为全局还是局部 */
-                        //为全局
-                        if(symbol.getLevel()==0){
-                            InstructionList.add(new Instruction(Operation.globa, symbol.getOffset(), 4));
-                        }
-                        //为局部
-                        else{
-                            InstructionList.add(new Instruction(Operation.loca, symbol.getOffset(), 4));
-                        }
+                        InstructionList.add(new Instruction(Operation.loca, symbol.getOffset(), 4));
                     }
                 }
                 //为参数
-                else{
+                else if (param!=null){
                     type = param.getType();
                     if (type.equals("void")) {
                         throw new AnalyzeError(ErrorCode.InvalidAssignment, tmp.getStartPos());
                     }
                     int offset = AuxiliaryFunction.getParamOffset(param.getName(), params);
                     InstructionList.add(new Instruction(Operation.arga,paramOffset+offset, 4));
+                }else if(symbol.getLevel() == 0){
+                    type = symbol.getType();
+                    /* 该变量类型与表达式类型不同,或l_expr的类型为void */
+                    if (type.equals("void")) {
+                        throw new AnalyzeError(ErrorCode.InvalidAssignment, tmp.getStartPos());
+                    }
+                    /* 找到一个常量 */
+                    else if (symbol.isConstant() == 1) {
+                        throw new AnalyzeError(ErrorCode.AssignToConstant, tmp.getStartPos());
+                    }
+                    /* 都不是 */
+                    else {
+                        InstructionList.add(new Instruction(Operation.globa, symbol.getOffset(), 4));
+                    }
                 }
             }
 
@@ -442,29 +448,30 @@ public class Analyser {
             if (symbol==null&&parameter==null)
                 throw new AnalyzeError(ErrorCode.NotDeclared);
             Instruction instruction;
-            //局部变量
+
             int id;
-            if (symbol!=null) {
+            //参数
+            if (parameter!=null) {
+                id = AuxiliaryFunction.getParamOffset(parameter.getName(), params);
+                instruction = new Instruction(Operation.arga, paramOffset + id,4);
+                InstructionList.add(instruction);
+                Type1 = parameter.getType();
+            }
+            //变量
+            else {
                 /* 全局 */
-                if(symbol.getLevel()==0){
+                if(symbol.getLevel()>0){
                     id = symbol.getOffset();
-                    instruction = new Instruction(Operation.globa, id,4);
+                    instruction = new Instruction(Operation.loca, id,4);
                     InstructionList.add(instruction);
                 }
                 /* 局部 */
                 else {
                     id = symbol.getOffset();
-                    instruction = new Instruction(Operation.loca, id,4);
+                    instruction = new Instruction(Operation.globa, id,4);
                     InstructionList.add(instruction);
                 }
                 Type1 = symbol.getType();
-            }
-            //参数
-            else {
-                id = AuxiliaryFunction.getParamOffset(parameter.getName(), params);
-                instruction = new Instruction(Operation.arga, paramOffset + id,4);
-                InstructionList.add(instruction);
-                Type1 = parameter.getType();
             }
             InstructionList.add(new Instruction(Operation.load));
         }
@@ -915,8 +922,6 @@ public class Analyser {
 
         /* 返回类型和函数类型不同 | 函数为void时有返回 | 函数不为void时没有返回 */
         if((!returnType.equals(type)) || isVoid&&haveReturn || ((!isVoid)&&(!haveReturn))){
-           // System.out.println(returnType);
-            //System.out.println(type);
             throw new AnalyzeError(ErrorCode.NotValidReturn, tmp.getEndPos());
         }
 

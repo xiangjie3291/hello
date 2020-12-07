@@ -38,9 +38,9 @@ public class Tokenizer {
             return lexStringLiteral();
         }
         else {
-            if(peek == '/'){
-                return lexComment();
-            }
+//            if(peek == '/'){
+//                return lexComment();
+//            }
             return lexOperatorOrUnknown();
         }
     }
@@ -96,7 +96,10 @@ public class Tokenizer {
            int num = Integer.parseInt(CatToken.toString());
            return new Token(TokenType.UINT_LITERAL, num, startPos, endPos);
        } else {
-           return new Token(TokenType.DOUBLE_LITERAL, Double.parseDouble(CatToken.toString()), startPos, endPos);
+           double b = Double.parseDouble(CatToken.toString());
+           long l = Double.doubleToLongBits(b);
+           /* 将double以long的字节形式传入 */
+           return new Token(TokenType.DOUBLE_LITERAL,l, startPos, endPos);
        }
     }
 
@@ -207,6 +210,12 @@ public class Tokenizer {
             case '/':
                 // 填入返回语句
                 it.nextChar();
+                if(it.peekChar()=='/'){
+                    while(it.peekChar()!='\n'){
+                        it.nextChar();
+                    }
+                    return nextToken();
+                }
                 return new Token(TokenType.DIV, '/', it.previousPos(), it.currentPos());
 
             case '=':
