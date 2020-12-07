@@ -26,13 +26,16 @@ public class App {
             //InputStream outputStream = new FileInputStream(args[1]);
             Scanner scanner = new Scanner(inputStream);
 
+
+            /*词法分析*/
             var iter = new StringIter(scanner);
             iter.readAll();
             System.out.println(iter.getLinesBuffer());
             Analyser tmp = new Analyser(new Tokenizer(iter));
 
+
             tmp.analyseProgram();
-//
+
             for (GlobalDef globalDef : tmp.getGlobalTable()) {
                 System.out.println(globalDef);
             }
@@ -57,13 +60,13 @@ public class App {
             DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(args[1])));
             List<Byte> bytes = output.getBcOut();
             byte[] resultBytes = new byte[bytes.size()];
-            StringBuilder test = new StringBuilder();
+           // StringBuilder test = new StringBuilder();
             for (int i = 0; i < bytes.size(); ++i) {
                 resultBytes[i] = bytes.get(i);
-                test.append(bytes.get(i).toString());
+             //   test.append(bytes.get(i).toString());
             }
             out.write(resultBytes);
-            System.out.println(bytes);
+           // System.out.println(bytes);
         }catch (Exception  e){
             throw e;
         }

@@ -140,6 +140,7 @@ public class Analyser {
      */
     private Token nextIf(TokenType tt) throws TokenizeError {
         var token = peek();
+
         if (token.getTokenType() == tt) {
             return next();
         } else {
@@ -156,6 +157,8 @@ public class Analyser {
      */
     private Token expect(TokenType tt) throws CompileError {
         var token = peek();
+
+
         if (token.getTokenType() == tt) {
             return next();
         } else {

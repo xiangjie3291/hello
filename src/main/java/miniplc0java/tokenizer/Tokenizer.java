@@ -37,10 +37,10 @@ public class Tokenizer {
         } else if(peek == '"'){
             return lexStringLiteral();
         }
-//        else if(peek == '/'){
-//            return lexComment();
-//        }
         else {
+            if(peek == '/'){
+                return lexComment();
+            }
             return lexOperatorOrUnknown();
         }
     }
@@ -197,11 +197,6 @@ public class Tokenizer {
             case '/':
                 // 填入返回语句
                 it.nextChar();
-                startpos=it.previousPos();
-                if(it.peekChar()=='/'){
-                    it.nextChar();
-                    return null;
-                }
                 return new Token(TokenType.DIV, '/', it.previousPos(), it.currentPos());
 
             case '=':
@@ -288,18 +283,18 @@ public class Tokenizer {
         }
     }
 
-//    /* 注释 */
-//    private Token lexComment() throws TokenizeError{
-//        it.nextChar();
-//        if(it.peekChar()=='/'){
-//            while(it.peekChar()!='\n'){
-//                it.nextChar();
-//            }
-//            return null;
-//        }else{
-//            throw new TokenizeError(ErrorCode.InvalidInput, it.nextPos());
-//        }
-//    }
+    /* 注释 */
+    private Token lexComment() throws TokenizeError{
+        it.nextChar();
+        if(it.peekChar()=='/'){
+            while(it.peekChar()!='\n'){
+                it.nextChar();
+            }
+            return null;
+        }else{
+            throw new TokenizeError(ErrorCode.InvalidInput, it.nextPos());
+        }
+    }
 
     private void skipSpaceCharacters() {
         while (!it.isEOF() && Character.isWhitespace(it.peekChar())) {

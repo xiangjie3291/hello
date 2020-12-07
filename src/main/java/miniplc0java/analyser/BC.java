@@ -79,7 +79,7 @@ public class BC{
                     BcOut.addAll(IntToBytes((int)instruction.getX()));// param: u32
                 }
                 else if(instruction.getByteNum() == 8){
-                    BcOut.addAll(LongToBytes(instruction.getX())); // param: u64
+                    BcOut.addAll(LongToBytes((long)instruction.getX())); // param: u64
                 }
             }
         }

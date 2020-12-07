@@ -1,18 +1,12 @@
-fn main() -> void {
-    let c: int = 0;
-    let i: int;
-    while c < 10 {
-        i = 0;
-        while i < 9 - c {
-            putchar(32);
-            i = i + 1;
-        }
-        i = 0;
-        while i < 2 * c + 1 {
-            putchar(42);
-            i = i + 1;
-        }
-        putln();
-        c = c + 1;
-    }
-}
+fn main()         // Hi!
+           -> void // comment here
+ // do you miss me?
+ {
+     // let i: int = 65535;
+     let i: int = 0;
+     let j: int = 1;
+     putint(i+j); // this prints out i + j
+     // return 0;
+     // we should not return here
+ // } this is a fake end!
+ } // this is real
