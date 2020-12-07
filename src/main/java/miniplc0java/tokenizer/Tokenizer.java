@@ -300,7 +300,7 @@ public class Tokenizer {
             while(it.peekChar()!='\n'){
                 it.nextChar();
             }
-            return null;
+            return nextToken();
         }else{
             throw new TokenizeError(ErrorCode.InvalidInput, it.nextPos());
         }
