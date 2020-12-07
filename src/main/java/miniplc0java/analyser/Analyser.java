@@ -215,9 +215,9 @@ public class Analyser {
             if(tmp.getTokenType()==TokenType.UINT_LITERAL||tmp.getTokenType()==TokenType.CHAR_LITERAL){
                 /* int类型，四字节 */
                 if(level==0){
-                    GlobalInstructionList.add(new Instruction(Operation.push , (Integer) tmp.getValue(), 8));
+                    GlobalInstructionList.add(new Instruction(Operation.push , (Long) tmp.getValue(), 8));
                 }else {
-                    InstructionList.add(new Instruction(Operation.push, (Integer) tmp.getValue(), 8));
+                    InstructionList.add(new Instruction(Operation.push, (Long) tmp.getValue(), 8));
                 }
                 Type1 = "int";
                 //returnType = "int";

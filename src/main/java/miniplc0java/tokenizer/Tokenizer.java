@@ -144,7 +144,7 @@ public class Tokenizer {
         }
        endPos = it.currentPos();
        if (flag == 0) {
-           int num = Integer.parseInt(CatToken.toString());
+           Long num = Long.parseLong(CatToken.toString());
            return new Token(TokenType.UINT_LITERAL, num, startPos, endPos);
        } else {
            double b = Double.parseDouble(CatToken.toString());
