@@ -19,7 +19,6 @@ public class AnalyzeError extends CompileError {
     }
 
     /**
-     * @param errorToken
      * @param code
      * @param pos
      */
@@ -28,6 +27,9 @@ public class AnalyzeError extends CompileError {
         this.pos = pos;
     }
 
+    public AnalyzeError(ErrorCode code) {
+        this.code = code;
+    }
     @Override
     public String toString() {
         return new StringBuilder().append("Analyze Error: ").append(code).append(", at: ").append(pos).toString();

@@ -21,4 +21,5 @@ public class Pos {
     public String toString() {
         return new StringBuilder().append("Pos(row: ").append(row).append(", col: ").append(col).append(")").toString();
     }
+
 }

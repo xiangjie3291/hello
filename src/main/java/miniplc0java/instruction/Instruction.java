@@ -1,25 +1,29 @@
 package miniplc0java.instruction;
 
+import miniplc0java.tokenizer.TokenType;
+import miniplc0java.util.OperatorPrecedence;
+
+import java.util.List;
 import java.util.Objects;
 
 public class Instruction {
     private Operation opt;
-    Integer x;
+    long x;
+    int ByteNum; //字节数，int为4，double为8
+
 
     public Instruction(Operation opt) {
         this.opt = opt;
         this.x = 0;
+        ByteNum = 0;
     }
 
-    public Instruction(Operation opt, Integer x) {
+    public Instruction(Operation opt, long x, int ByteNum) {
         this.opt = opt;
         this.x = x;
+        this.ByteNum = ByteNum;
     }
 
-    public Instruction() {
-        this.opt = Operation.LIT;
-        this.x = 0;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -36,38 +40,116 @@ public class Instruction {
         return Objects.hash(opt, x);
     }
 
-    public Operation getOpt() {
-        return opt;
+    public int getOpt() {
+        return opt.getNum();
     }
 
     public void setOpt(Operation opt) {
         this.opt = opt;
     }
 
-    public Integer getX() {
+    public long getX() {
         return x;
     }
 
-    public void setX(Integer x) {
+    public void setX(long x) {
         this.x = x;
+    }
+
+    public int getByteNum() {
+        return ByteNum;
     }
 
     @Override
     public String toString() {
-        switch (this.opt) {
-            case ADD:
-            case DIV:
-            case ILL:
+        return ""+opt +'(' + x +')'+ '\n';
+    }
+
+    public static void AddToInstructionListInt(TokenType type, List<Instruction> instructionsList){
+        switch (type) {
+            case LT:
+                instructionsList.add(new Instruction(Operation.cmp));
+                instructionsList.add(new Instruction(Operation.setLt));
+                break;
+            case LE:
+                instructionsList.add(new Instruction(Operation.cmp));
+                instructionsList.add(new Instruction(Operation.setGt));
+                instructionsList.add(new Instruction(Operation.not));
+                break;
+            case GT:
+                instructionsList.add(new Instruction(Operation.cmp));
+                instructionsList.add(new Instruction(Operation.setGt));
+                break;
+            case GE:
+                instructionsList.add(new Instruction(Operation.cmp));
+                instructionsList.add(new Instruction(Operation.setLt));
+                instructionsList.add(new Instruction(Operation.not));
+                break;
+            case PLUS:
+                instructionsList.add(new Instruction(Operation.add));
+                break;
+            case MINUS:
+                instructionsList.add(new Instruction(Operation.sub));
+                break;
             case MUL:
-            case SUB:
-            case WRT:
-                return String.format("%s", this.opt);
-            case LIT:
-            case LOD:
-            case STO:
-                return String.format("%s %s", this.opt, this.x);
+                instructionsList.add(new Instruction(Operation.mul));
+                break;
+            case DIV:
+                instructionsList.add(new Instruction(Operation.div));
+                break;
+            case EQ:
+                instructionsList.add(new Instruction(Operation.cmp));
+                instructionsList.add(new Instruction(Operation.not));
+                break;
+            case NEQ:
+                instructionsList.add(new Instruction(Operation.cmp));
+                break;
             default:
-                return "ILL";
+                break;
+        }
+    }
+
+    public static void AddToInstructionListDouble(TokenType type, List<Instruction> instructionsList){
+        switch (type) {
+            case LT:
+                instructionsList.add(new Instruction(Operation.cmpf));
+                instructionsList.add(new Instruction(Operation.setLt));
+                break;
+            case LE:
+                instructionsList.add(new Instruction(Operation.cmpf));
+                instructionsList.add(new Instruction(Operation.setGt));
+                instructionsList.add(new Instruction(Operation.not));
+                break;
+            case GT:
+                instructionsList.add(new Instruction(Operation.cmpf));
+                instructionsList.add(new Instruction(Operation.setGt));
+                break;
+            case GE:
+                instructionsList.add(new Instruction(Operation.cmpf));
+                instructionsList.add(new Instruction(Operation.setLt));
+                instructionsList.add(new Instruction(Operation.not));
+                break;
+            case PLUS:
+                instructionsList.add(new Instruction(Operation.addf));
+                break;
+            case MINUS:
+                instructionsList.add(new Instruction(Operation.subf));
+                break;
+            case MUL:
+                instructionsList.add(new Instruction(Operation.mulf));
+                break;
+            case DIV:
+                instructionsList.add(new Instruction(Operation.divf));
+                break;
+            case EQ:
+                instructionsList.add(new Instruction(Operation.cmpf));
+                instructionsList.add(new Instruction(Operation.not));
+                break;
+            case NEQ:
+                instructionsList.add(new Instruction(Operation.cmpf));
+                break;
+            default:
+                break;
         }
     }
 }
