@@ -212,9 +212,10 @@ public class Analyser {
             if(tmp.getTokenType()==TokenType.UINT_LITERAL){
                 /* int类型，四字节 */
                 if(level==0){
-                    GlobalInstructionList.add(new Instruction(Operation.push , (Integer) tmp.getValue(), 4));
+                    GlobalInstructionList.add(new Instruction(Operation.push , (Integer) tmp.getValue(), 8));
                 }else {
-                    InstructionList.add(new Instruction(Operation.push, (Integer) tmp.getValue(), 4));
+                    InstructionList.add(new Instruction(Operation.push, (Integer) tmp.getValue(), 8));
+                    System.out.println("----------------------"+tmp.getValueString()+"----------------");
                 }
                 Type1 = "int";
                 //returnType = "int";

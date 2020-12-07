@@ -36,6 +36,9 @@ public class BC{
         for (GlobalDef global : globals) {
             BcOut.add(ByteIntToBytes(global.getIsConst()));//is_const: u8
 
+            System.out.print("is_const:"+global.getIsConst());
+            System.out.println(IntToBytes(global.getIsConst()));
+
             List<Byte> globalValueCount;// value count
             List<Byte> globalValue;//value items
             //不存在全局名称,为变量或常量,64位的0,八个字节
@@ -48,6 +51,9 @@ public class BC{
                 globalValue = ListCharToBytes(global.getValue());
                 globalValueCount = IntToBytes(globalValue.size());
             }
+
+            System.out.print("globalValueCount:"+globalValueCount);
+            System.out.println("globalValue:"+globalValue);
             BcOut.addAll(globalValueCount);
             BcOut.addAll(globalValue);
         }
