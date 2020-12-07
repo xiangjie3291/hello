@@ -595,6 +595,7 @@ public class Analyser {
                 Instruction.AddToInstructionListDouble(type, InstructionList);
             }
         }
+        stack.pop();
         return Type;
     }
 
@@ -892,6 +893,7 @@ public class Analyser {
     private void analyseBreakStmt() throws CompileError{
         expect(TokenType.BREAK_KW);
         expect(TokenType.SEMICOLON);
+        int nowOffset = InstructionList.size();
     }
 
     /**
@@ -933,7 +935,12 @@ public class Analyser {
         }
         expect(TokenType.SEMICOLON);
         while (!stack.empty()) {
-            Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+            Type = returnType;
+            if(Type.equals("int")) {
+                Instruction.AddToInstructionListInt(stack.pop(), InstructionList);
+            }else if (Type.equals("double")){
+                Instruction.AddToInstructionListDouble(stack.pop(), InstructionList);
+            }
         }
         InstructionList.add(new Instruction(Operation.ret));
 
