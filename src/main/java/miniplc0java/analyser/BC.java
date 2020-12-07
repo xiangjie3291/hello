@@ -31,6 +31,7 @@ public class BC{
         BcOut.addAll(IntToBytes(globals.size())); //globalCounts
         for (GlobalDef global : globals) {
             BcOut.add(ByteIntToBytes(global.getIsConst()));//is_const: u8
+
             List<Byte> globalValueCount;// value count
             List<Byte> globalValue;//value items
             //不存在全局名称,为变量或常量,64位的0,八个字节

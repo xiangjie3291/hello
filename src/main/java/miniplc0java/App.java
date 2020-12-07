@@ -1,6 +1,7 @@
 package miniplc0java;
 
 import miniplc0java.Struct.FunctionDef;
+import miniplc0java.Struct.GlobalDef;
 import miniplc0java.analyser.Analyser;
 import miniplc0java.analyser.BC;
 import miniplc0java.tokenizer.StringIter;
@@ -32,9 +33,9 @@ public class App {
 
             tmp.analyseProgram();
 //
-//            for (GlobalDef globalDef : tmp.getGlobalTable()) {
-//                System.out.println(globalDef);
-//            }
+            for (GlobalDef globalDef : tmp.getGlobalTable()) {
+                System.out.println(globalDef);
+            }
 
             List<Map.Entry<String, FunctionDef>> FunctionList = new ArrayList<Map.Entry<String, FunctionDef>>(tmp.getFunctionTable().entrySet());
 
@@ -45,23 +46,26 @@ public class App {
                     return (o1.getValue().getFunctionId() - o2.getValue().getFunctionId());
                 }
             });
-//
-//            for (Map.Entry<String, FunctionDef> functionDef : FunctionList) {
-//                System.out.println(functionDef.getValue().getName());
-//                System.out.println(functionDef);
-//            }
+
+            for (Map.Entry<String, FunctionDef> functionDef : FunctionList) {
+                System.out.println(functionDef.getValue().getName());
+                System.out.println(functionDef);
+            }
 
             BC output = new BC(tmp.getGlobalTable(), FunctionList);
 //            System.out.println();
             DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(args[1])));
             List<Byte> bytes = output.getBcOut();
             byte[] resultBytes = new byte[bytes.size()];
+            StringBuilder test = new StringBuilder();
             for (int i = 0; i < bytes.size(); ++i) {
                 resultBytes[i] = bytes.get(i);
+                test.append(bytes.get(i).toString());
             }
             out.write(resultBytes);
+            System.out.println(bytes);
         }catch (Exception  e){
-            System.exit(-1);
+            throw e;
         }
 
 

@@ -114,7 +114,7 @@ public class FunctionDef {
 
     public String toString() {
         return "FunctionDef{\n" +
-                "   id=" + FunctionId +
+                "   id=" + offset +
                 ",\n    returnSlots=" + return_slots +
                 ",\n    paramSlots=" + param_slots +
                 ",\n    localSlots=" + loc_slots +
