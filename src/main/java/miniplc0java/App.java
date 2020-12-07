@@ -26,7 +26,10 @@ public class App {
             Scanner scanner = new Scanner(inputStream);
 
             var iter = new StringIter(scanner);
+            iter.readAll();
+            System.out.println(iter.getLinesBuffer());
             Analyser tmp = new Analyser(new Tokenizer(iter));
+
             tmp.analyseProgram();
 //
 //            for (GlobalDef globalDef : tmp.getGlobalTable()) {

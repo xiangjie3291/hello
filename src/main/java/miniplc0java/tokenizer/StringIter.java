@@ -1,10 +1,10 @@
 package miniplc0java.tokenizer;
 
+import miniplc0java.util.Pos;
+
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Scanner;
-
-import miniplc0java.util.Pos;
 
 /**
  * 这是一个从 C++ 版本抄过来的字符迭代器
@@ -20,6 +20,10 @@ public class StringIter {
     Pos ptr = new Pos(0, 0);
 
     boolean initialized = false;
+
+    public ArrayList<String> getLinesBuffer() {
+        return linesBuffer;
+    }
 
     Optional<Character> peeked = Optional.empty();
 
