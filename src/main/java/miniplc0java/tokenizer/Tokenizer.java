@@ -138,8 +138,7 @@ public class Tokenizer {
         StringBuilder CatToken = new StringBuilder();
         Pos startPos=it.nextPos();
         Pos endPos;
-        /* 已经判断第一个 " ，将 " 放进字符串中 */
-        CatToken.append(it.peekChar());
+        /* 已经判断第一个 "  */
         /* 指向 " 所在的位置，然后循环开始 */
         it.nextChar();
         while(!it.isEOF()){
@@ -161,7 +160,6 @@ public class Tokenizer {
             }
             /* 判断字符串是否结束,由于上个if已经包含转义字符情况，因此此时一定为函数结束 */
             if(it.peekChar()=='"'){
-                CatToken.append(it.peekChar());
                 it.nextChar();
                 break;
             }
