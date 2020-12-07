@@ -218,7 +218,6 @@ public class Analyser {
                     GlobalInstructionList.add(new Instruction(Operation.push , (Integer) tmp.getValue(), 8));
                 }else {
                     InstructionList.add(new Instruction(Operation.push, (Integer) tmp.getValue(), 8));
-                    System.out.println("----------------------"+tmp.getValueString()+"----------------");
                 }
                 Type1 = "int";
                 //returnType = "int";

@@ -145,7 +145,7 @@ public class Tokenizer {
             /* 判断下一个是否为转义字符 */
             if(it.peekChar()=='\\'){
                 /* 将'\\'存入，并指向它 */
-                CatToken.append(it.peekChar());
+                //CatToken.append(it.peekChar());
                 it.nextChar();
                 /* 偷看'\\'后的一个字符 */
                 char tmp= it.peekChar();
@@ -153,7 +153,17 @@ public class Tokenizer {
                 if(tmp != '\\' && tmp != '\'' && tmp != '"' && tmp != 'n' && tmp != 'r' && tmp != 't'){
                     throw new TokenizeError(ErrorCode.InvalidInput, it.nextPos());
                 }else{
-                    CatToken.append(it.peekChar());
+                    if(tmp=='\\'||tmp=='\'') {
+                        CatToken.append(it.peekChar());
+                    }else if(tmp=='"') {
+                        CatToken.append('\"');
+                    }else if(tmp=='n') {
+                        CatToken.append('\n');
+                    }else if(tmp=='r') {
+                        CatToken.append('\r');
+                    }else {
+                        CatToken.append('\t');
+                    }
                     it.nextChar();
                     continue;
                 }
