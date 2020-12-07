@@ -746,7 +746,11 @@ public class Analyser {
                 }
             }
 
-            InstructionList.add(new Instruction(Operation.store));
+            if(level==0) {
+                GlobalInstructionList.add(new Instruction(Operation.store));
+            }else{
+                InstructionList.add(new Instruction(Operation.store));
+            }
 
             expect(TokenType.SEMICOLON);
         }
