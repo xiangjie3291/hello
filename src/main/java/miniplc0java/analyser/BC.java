@@ -29,6 +29,10 @@ public class BC{
 
     private void BcAddGlobals() {
         BcOut.addAll(IntToBytes(globals.size())); //globalCounts
+
+        System.out.print("globalCounts:"+globals.size());
+        System.out.println(IntToBytes(globals.size()));
+
         for (GlobalDef global : globals) {
             BcOut.add(ByteIntToBytes(global.getIsConst()));//is_const: u8
 

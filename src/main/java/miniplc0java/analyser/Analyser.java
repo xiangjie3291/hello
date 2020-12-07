@@ -211,15 +211,28 @@ public class Analyser {
             Token tmp = next();
             if(tmp.getTokenType()==TokenType.UINT_LITERAL){
                 /* int类型，四字节 */
-                InstructionList.add(new Instruction(Operation.push , (Integer) tmp.getValue(), 4));
+                if(level==0){
+                    GlobalInstructionList.add(new Instruction(Operation.push , (Integer) tmp.getValue(), 4));
+                }else {
+                    InstructionList.add(new Instruction(Operation.push, (Integer) tmp.getValue(), 4));
+                }
                 Type1 = "int";
                 //returnType = "int";
             }else if(tmp.getTokenType()==TokenType.DOUBLE_LITERAL){
                 /* todo: double类型，未实现 */
-                InstructionList.add(new Instruction(Operation.push , (long) tmp.getValue(), 8));
+                if(level==0){
+                    GlobalInstructionList.add(new Instruction(Operation.push, (long) tmp.getValue(), 8));
+                }else {
+                    InstructionList.add(new Instruction(Operation.push, (long) tmp.getValue(), 8));
+                }
             }else if (tmp.getTokenType() == TokenType.STRING_LITERAL) {
                 GlobalTable.add(new GlobalDef(tmp.getValueString(), 1, AuxiliaryFunction.ChangeToBinary(tmp.getValueString())));
-                InstructionList.add(new Instruction(Operation.push,globalOffset, 8));
+                if(level==0) {
+                    GlobalInstructionList.add(new Instruction(Operation.push, globalOffset, 8));
+                }else{
+                    InstructionList.add(new Instruction(Operation.push, globalOffset, 8));
+                }
+
                 globalOffset++;
                // returnType = "string";
                 Type1 = "int";
@@ -610,7 +623,11 @@ public class Analyser {
                     Instruction.AddToInstructionListInt(tokenType, InstructionList);
                 }
 
-                InstructionList.add(new Instruction(Operation.store));
+                if(level==0) {
+                    GlobalInstructionList.add(new Instruction(Operation.store));
+                }else{
+                    InstructionList.add(new Instruction(Operation.store));
+                }
 
             }
             expect(TokenType.SEMICOLON);
