@@ -67,15 +67,6 @@ public class Analyser {
     /** 算符优先矩阵 */
     int[][] priority = OperatorPrecedence.getPriority();
 
-    /** while函数判断 */
-    boolean isWhile = false;
-
-    /** while起始地址（continue） */
-    int startOfWhile = 0;
-
-    /** while结束地址（break） */
-    int endOfWhile = 0;
-
     /**
      *  用于存储函数的局部变量大小
      *  以及同时用于表达局部变量在栈中的偏移
@@ -610,7 +601,7 @@ public class Analyser {
      *decl_stmt -> let_decl_stmt | const_decl_stmt
      * */
 
-    private void analyseStatement(String Type) throws CompileError {
+    private void analyseStatement(Boolean isWhile, int startOfWhile ,String Type) throws CompileError {
         //throw new Error("Not implemented");
         Token var = peek();
         if(check(TokenType.MINUS)||check(TokenType.IDENT)||check(TokenType.L_Paren)||isLiteralExpr()){
@@ -629,17 +620,17 @@ public class Analyser {
         }else if(check(TokenType.LET_KW)||check(TokenType.CONST_KW)){
             analyseDeclStmt();
         }else if(check(TokenType.IF_KW)){
-            analyseIfStmt(Type);
+            analyseIfStmt(isWhile,startOfWhile,Type);
         }else if(check(TokenType.WHILE_KW)){
             analyseWhileStmt(Type);
         }else if(check(TokenType.BREAK_KW)){
-            analyseBreakStmt();
+            analyseBreakStmt(isWhile,startOfWhile,Type);
         }else if(check(TokenType.CONTINUE_KW)){
-            analyseContinueStmt();
+            analyseContinueStmt(isWhile,startOfWhile,Type);
         }else if(check(TokenType.RETURN_KW)){
             analyseReturnStmt(Type);
         }else if(check(TokenType.L_BRACE)){
-            analyseBlockStmt(Type);
+            analyseBlockStmt(isWhile, startOfWhile ,Type);
         }else if(check(TokenType.SEMICOLON)){
             analyseEmptyStmt();
         }else{
@@ -776,7 +767,7 @@ public class Analyser {
      * if_stmt -> 'if' expr block_stmt
      *            ('else' 'if' expr block_stmt)* ('else' block_stmt)?
      * */
-    private void analyseIfStmt(String Type) throws CompileError{
+    private void analyseIfStmt(Boolean isWhile, int startOfWhile ,String Type) throws CompileError{
         expect(TokenType.IF_KW);
         String Type1 = analyseExpression();
         //弹栈
@@ -795,7 +786,7 @@ public class Analyser {
         InstructionList.add(jump_ifInstruction);
         int if_start = InstructionList.size();
 
-        analyseBlockStmt(Type);
+        analyseBlockStmt(isWhile, startOfWhile,Type);
 
         /* todo:ret指令对跳转有影响吗？（应该是不影响的） */
         /* 当if成立时，可能需要通过jumpInstruction直接跳过else  */
@@ -810,9 +801,9 @@ public class Analyser {
         if (check( TokenType.ELSE_KW)) {
             expect(TokenType.ELSE_KW);
             if (check(TokenType.IF_KW))
-                analyseIfStmt(Type);
+                analyseIfStmt(isWhile,startOfWhile,Type);
             else {
-                analyseBlockStmt(Type);
+                analyseBlockStmt(isWhile,startOfWhile,Type);
                 /* else语句，跳转0，直接执行下一段语句即可 */
                 InstructionList.add(new Instruction(Operation.br,0,4));
             }
@@ -852,30 +843,16 @@ public class Analyser {
 
         /* while开始执行时的指令集长度 */
         int size_second = InstructionList.size();
-
-
-        /**
-         * while开始
-         * */
-        isWhile = true;
-        startOfWhile = size_first;
-
-
+        boolean iswhile = true;
 
         /* 分析block_stmt */
-        analyseBlockStmt(Type);
+        analyseBlockStmt(iswhile,size_first ,Type);
 
         /* 跳转回while语句最初的位置 */
         Instruction comeBack = new Instruction(Operation.br, 0,4);
         InstructionList.add(comeBack);
         /* 语句进行后的指令集长度 */
         int size_third = InstructionList.size();
-
-        /**
-         * while结束
-         * */
-        isWhile = false;
-        endOfWhile = size_third;
 
 
         /* 回到最开始、跳过while的偏移 */
@@ -890,18 +867,30 @@ public class Analyser {
     /**
      * break_stmt -> 'break' ';'
      * */
-    private void analyseBreakStmt() throws CompileError{
+    private void analyseBreakStmt(Boolean isWhile, int startOfWhile ,String Type) throws CompileError{
         expect(TokenType.BREAK_KW);
         expect(TokenType.SEMICOLON);
-        int nowOffset = InstructionList.size();
+        if(isWhile) {
+            int nowOffset = InstructionList.size();
+            InstructionList.add(new Instruction(Operation.br, -(nowOffset - startOfWhile), 4));
+        }else{
+            throw new AnalyzeError(ErrorCode.NotWhile);
+        }
     }
 
     /**
      * continue_stmt -> 'continue' ';'
      * */
-    private void analyseContinueStmt() throws CompileError{
+    private void analyseContinueStmt(Boolean isWhile, int startOfWhile ,String Type) throws CompileError{
         expect(TokenType.CONTINUE_KW);
         expect(TokenType.SEMICOLON);
+        if(isWhile){
+            int nowOffset = InstructionList.size();
+            InstructionList.add(new Instruction(Operation.br,-(nowOffset-startOfWhile-1),4));
+        }else{
+            throw new AnalyzeError(ErrorCode.NotWhile);
+        }
+
     }
 
     /**
@@ -949,7 +938,7 @@ public class Analyser {
     /**
      * block_stmt -> '{' stmt* '}'
      * */
-    private void analyseBlockStmt(String Type) throws CompileError{
+    private void analyseBlockStmt(Boolean isWhile, int startOfWhile ,String Type) throws CompileError{
         expect(TokenType.L_BRACE);
         /* 进入block_stmt,层数增加 */
         level++;
@@ -957,7 +946,7 @@ public class Analyser {
                 check(TokenType.LET_KW)||check(TokenType.CONST_KW)||check(TokenType.IF_KW)||check(TokenType.WHILE_KW)
                 ||check(TokenType.BREAK_KW)||check(TokenType.CONTINUE_KW)||check(TokenType.RETURN_KW)||check(TokenType.L_BRACE)||
                 check(TokenType.SEMICOLON)){
-            analyseStatement(Type);
+            analyseStatement(isWhile,startOfWhile,Type);
         }
         expect(TokenType.R_BRACE);
         /* 函数分析完毕，将该层的局部变量全部删除 */
@@ -1027,7 +1016,8 @@ public class Analyser {
         *  传入Type,用于后续判断语句返回类型是否符合函数需求
         * */
         /* Block_stmt中会修改loc_slots变量 */
-        analyseBlockStmt(type);
+
+        analyseBlockStmt(false, 0 ,type);
 
 
         /* 返回类型和函数类型不同 | 函数为void时有返回 | 函数不为void时没有返回 */
